@@ -3,12 +3,12 @@
 #include <sys/stat.h>
 #include <string.h>
 
-const char* estudiantes = "problema.stu";
-const char* examenes = "problema.exm";
+const char* estudiantes = "Carleton91.stu";
+const char* examenes = "Carleton91.exm";
 
 typedef struct {
         char id[20];
-        int mis_examenes[20];
+        int mis_examenes[60];
         int len_mis_examenes;
 } STUDENT;
 
@@ -34,7 +34,6 @@ int main(int argc, char ** argv){
     }
     int cant_examenes;
     cant_examenes = strtol(file_contents, NULL, 10); //este rescata el ultimo id de examen, que representa la cantidad total de examenes
-    
     //-----------------se declara e inicializa la matriz de conflictos--------------------
     int matriz_conflictos[cant_examenes][cant_examenes];
     for(int i=0; i<cant_examenes; i++){
@@ -46,7 +45,7 @@ int main(int argc, char ** argv){
     char *id_estudiante = malloc(sb.st_size), *id_examen = malloc(sb.st_size);
     STUDENT s={0};
     STUDENT* students; 
-    students = (STUDENT*)malloc(1*sizeof(STUDENT));
+    students = (STUDENT*)malloc(sizeof(STUDENT));
     int len_students=0, len_examenes=0;
     
     //-------------Primera iteracion para construir el arreglo de structs students--------------------
@@ -60,7 +59,6 @@ int main(int argc, char ** argv){
     len_examenes++;
     s.len_mis_examenes = len_examenes;
     students[len_students]=s;
-    
     //----------Construcción arreglo dinamico de struct student------------
     
     while (fscanf(stu, "%[^\n ] ", id_estudiante) != EOF && fscanf(stu, "%[^\n ] ", id_examen) != EOF) {
@@ -74,6 +72,7 @@ int main(int argc, char ** argv){
             STUDENT s={0};
             len_students++;
             len_examenes=0;
+            students = (STUDENT*)realloc(students, (len_students+1)*sizeof(STUDENT));
             strcpy(s.id, id_estudiante);
             s.mis_examenes[len_examenes]=examen_id;
             len_examenes++;
@@ -82,6 +81,7 @@ int main(int argc, char ** argv){
         }
         
     }
+    
     /*printf("len students: %d\n", len_students);
 
     for(int i=0; i<= len_students; i++){
@@ -108,12 +108,65 @@ int main(int argc, char ** argv){
         //printf("\n");
     }
 
-    for(int a=0; a<cant_examenes; a++){
+    /*for(int a=0; a<cant_examenes; a++){
         for(int b=0; b<cant_examenes; b++){
             printf("%d ", matriz_conflictos[a][b]);
         }
         printf("\n");
+    }*/
+
+    int solucion[cant_examenes];
+    int cant_timeslots_actual = 1;
+
+    //------------------solucion inicial greedy -------------------------
+    for(int columna=0; columna<cant_examenes; columna++){
+        if(matriz_conflictos[0][columna]==0){
+            solucion[columna]=1;
+        }
+        else{
+            solucion[columna]=2;
+            cant_timeslots_actual = 2;
+        }       
     }
+
+    //----------------Algoritmo greedy para encontrar una solucion inicial-----------------------------
+    int flag = 0; //flag que indica si se debe aumentar la cantidad de timeslots actual
+    for(int sol=0; sol<cant_examenes; sol++){
+        for(int solu=sol+1; solu<cant_examenes; solu++){
+            if(solucion[sol]==solucion[solu]){
+                if(matriz_conflictos[sol][solu]==1){
+                    flag=1;
+                    solucion[solu]=cant_timeslots_actual+1;
+                }
+            }
+        }
+        if(flag == 1){
+            cant_timeslots_actual++;
+        }
+        flag = 0;
+    }
+
+    for(int j=1; j<=cant_timeslots_actual; j++){
+        printf("timeslot %d :\n", j);
+        for(int i=0; i<cant_examenes; i++){
+            if(solucion[i]==j){
+                printf("prueba %d\n", i+1);
+            }
+            
+        }
+        printf("\n");
+    }
+    
+    /*printf("\n");
+    printf("cantidad examenes: %d\n", cant_examenes);
+    printf("cantidad de slots necesarios: %d\n", cant_timeslots_actual);
+    printf("len students: %d\n", len_students);
+    printf("len examenes estudiante %s : %d\n", students[175].id, students[175].len_mis_examenes);
+    printf("examen %d\n", students[175].mis_examenes[2]);*/
+
+
+
+    
 
     
 

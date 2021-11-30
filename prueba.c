@@ -3,8 +3,8 @@
 #include <sys/stat.h>
 #include <string.h>
 
-const char* estudiantes = "Carleton91.stu";
-const char* examenes = "Carleton91.exm";
+const char* estudiantes = "./instances/LSE91.stu";
+const char* examenes = "./instances/LSE91.exm";
 
 typedef struct {
         char id[20];
@@ -157,12 +157,12 @@ int main(int argc, char ** argv){
         printf("\n");
     }
     
-    /*printf("\n");
-    printf("cantidad examenes: %d\n", cant_examenes);
+    //printf("\n");
+    //printf("cantidad examenes: %d\n", cant_examenes);
     printf("cantidad de slots necesarios: %d\n", cant_timeslots_actual);
-    printf("len students: %d\n", len_students);
-    printf("len examenes estudiante %s : %d\n", students[175].id, students[175].len_mis_examenes);
-    printf("examen %d\n", students[175].mis_examenes[2]);*/
+    //printf("len students: %d\n", len_students);
+    //printf("len examenes estudiante %s : %d\n", students[175].id, students[175].len_mis_examenes);
+    //printf("examen %d\n", students[175].mis_examenes[2]);
 
 
 

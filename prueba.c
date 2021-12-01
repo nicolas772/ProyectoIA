@@ -3,8 +3,8 @@
 #include <sys/stat.h>
 #include <string.h>
 
-const char* estudiantes = "./instances/St.Andrews83.stu";
-const char* examenes = "./instances/St.Andrews83.exm";
+const char* estudiantes = "./instances/YorkMills83.stu";
+const char* examenes = "./instances/YorkMills83.exm";
 
 typedef struct {
         char id[20];
@@ -18,6 +18,7 @@ typedef struct {
 } EXAMEN;
 
 typedef struct {
+    int timeslot;
     int examenes_en_timeslot[100];
     int len_examenes_en_timeslot;
 } TIMESLOT;
@@ -125,7 +126,8 @@ int main(int argc, char ** argv){
         }
         printf("\n");
     }*/
-
+    
+    
     //--------------------- Greedy 1 ---------------------
     
     EXAMEN* examenes_array; 
@@ -159,19 +161,23 @@ int main(int argc, char ** argv){
         examenes_array[posicion_max].cantidad_conflictos = -10; //con esto, "elimino" el que acabo de agregar
         max_conflictos = -1;
     }
-
-    /*for (int i=0; i<cant_examenes;i++){
-        printf("examen: %d\n", examenes_array_ord[i].examen);
+    /*
+    printf("-------------Conflictos de examenes ordenados ---------------------\n");
+    for (int i=0; i<cant_examenes;i++){
+        printf("examen: %d\n", examenes_array_ord[i].examen +1);
         printf("cantidad conflictos: %d\n", examenes_array_ord[i].cantidad_conflictos);
         printf("\n");
-    }*/
+    }
+    printf("\n");
+    */
     //aqui implemento greedy
     TIMESLOT* timeslots_array; //arreglo de TIMESLOTS [{[ex1,ex2],2},{[ex3,ex4,ex5],3}], la posicion es el timeslot
     int cant_timeslots = 1;
     timeslots_array = (TIMESLOT*)malloc(cant_timeslots*sizeof(TIMESLOT));
     TIMESLOT t;
     t.examenes_en_timeslot[0] = examenes_array_ord[0].examen; //primera iteracion para el primer examen, que siempre ira en el TS1
-    t.len_examenes_en_timeslot = 1; 
+    t.len_examenes_en_timeslot = 1;
+    t.timeslot = 0; 
     timeslots_array[0]=t;
     int no_agregar_a_timeslot = 0;
     int no_se_anadio_a_ningun_timeslot = 0;
@@ -204,6 +210,7 @@ int main(int argc, char ** argv){
             cant_timeslots++;
             timeslots_array = (TIMESLOT*)realloc(timeslots_array, (cant_timeslots)*sizeof(TIMESLOT));
             TIMESLOT t_aux = {0};
+            t_aux.timeslot = cant_timeslots-1;
             t_aux.examenes_en_timeslot[0]=e1;
             t_aux.len_examenes_en_timeslot = 1;
             timeslots_array[cant_timeslots-1]=t_aux;
@@ -213,13 +220,13 @@ int main(int argc, char ** argv){
     }
 
     //esto es solo printear la solucion!
-    printf("cantidad de timeslots: %d\n", cant_timeslots);
+    printf("---------------------- SOLUCION CON GREEDY------------------------\n");
     int suma=0, suma_total = 0;
     for(int s=0; s<cant_timeslots; s++){
         printf("timeslot: %d\n", s);
         for(int o=0; o<timeslots_array[s].len_examenes_en_timeslot;o++){
             int examen = timeslots_array[s].examenes_en_timeslot[o];    
-            printf("examen %d\n", timeslots_array[s].examenes_en_timeslot[o]);
+            printf("id examen %d\n", timeslots_array[s].examenes_en_timeslot[o]+1);
             for(int g=0; g<timeslots_array[s].len_examenes_en_timeslot;g++){
                 int ex = timeslots_array[s].examenes_en_timeslot[g];
                 if(g!=o){
@@ -234,12 +241,13 @@ int main(int argc, char ** argv){
         printf("\n");
         suma_total=0;
     }
-    printf("cant examenes: %d\n", cant_examenes);
-
-
-
+    printf("cantidad de timeslots greedy: %d\n", cant_timeslots);
+    printf("\n");
+    
     /*
-    //------------------solucion inicial greedy -------------------------
+    printf("---------------------- SOLUCION CON GREEDY v2------------------------\n");
+    
+    //------------------solucion greedy 2-------------------------
     int solucion[cant_examenes];
     int cant_timeslots_actual = 1;
     for(int columna=0; columna<cant_examenes; columna++){
@@ -268,25 +276,31 @@ int main(int argc, char ** argv){
         }
         flag = 0;
     }
-
+    TIMESLOT* timeslots_array_gredy2;
+    timeslots_array_gredy2 = (TIMESLOT*)malloc(cant_timeslots_actual*sizeof(TIMESLOT));
+    int largo_cant_examenes_timeslot = 0;
     for(int j=1; j<=cant_timeslots_actual; j++){
+        TIMESLOT tt_aux = {0};
+        tt_aux.timeslot = j-1;
         printf("timeslot %d :\n", j);
         for(int i=0; i<cant_examenes; i++){
             if(solucion[i]==j){
                 printf("prueba %d\n", i+1);
+                tt_aux.examenes_en_timeslot[largo_cant_examenes_timeslot]=i;
+                tt_aux.len_examenes_en_timeslot ++;
             }
             
         }
+        timeslots_array_gredy2[j]=tt_aux;
         printf("\n");
-    } */
+    } 
     
-    //printf("\n");
     //printf("cantidad examenes: %d\n", cant_examenes);
-    //printf("cantidad de slots necesarios: %d\n", cant_timeslots_actual);
+    //printf("cantidad de timeslots con greedy 2: %d\n", cant_timeslots_actual);
     //printf("len students: %d\n", len_students);
     //printf("len examenes estudiante %s : %d\n", students[175].id, students[175].len_mis_examenes);
     //printf("examen %d\n", students[175].mis_examenes[2]);
-
+    */
     //----------------------- Hill Climbing----------------------------------------
 
     /*tomamos el timeslot con mas examenes agendados
@@ -296,6 +310,151 @@ int main(int argc, char ** argv){
     tomo solo 1 examen por timeslot por pasada, hasta que la "matriz solucion" este vacia
     cambiar el examen mas conflictivo -> movimiento
     */
+
+    //ordena la solucion actual por timeslots, desde el timeslot con mas examenes al que menos tiene
+    TIMESLOT* timeslots_ord; //arreglo descendente por cantidad de examenes en timeslot
+    int orden_timeslots[cant_timeslots]; //guarda el timeslot correspondiente al orden, [2,3,1] quiere decir ts2>ts3>ts1
+    timeslots_ord = (TIMESLOT*)malloc(cant_timeslots*sizeof(TIMESLOT));
+    int max_cant_examenes_por_timeslot = -1;
+    int timeslot_con_mas_examenes = -1;
+    for(int i=0; i<cant_timeslots; i++){//for para recorrer timeslots_ord
+        for(int j=0; j<cant_timeslots; j++){//for para recorrer timeslots_array
+            if(timeslots_array[j].len_examenes_en_timeslot > max_cant_examenes_por_timeslot){
+                timeslot_con_mas_examenes = j;
+                max_cant_examenes_por_timeslot = timeslots_array[j].len_examenes_en_timeslot;
+            }
+        }
+        TIMESLOT T = {0};
+        for(int k=0; k<timeslots_array[timeslot_con_mas_examenes].len_examenes_en_timeslot; k++){ //for para copiar el arreglo de examenes en el timeslot
+            T.examenes_en_timeslot[k]=timeslots_array[timeslot_con_mas_examenes].examenes_en_timeslot[k];
+        }
+        T.len_examenes_en_timeslot=timeslots_array[timeslot_con_mas_examenes].len_examenes_en_timeslot;
+        T.timeslot = timeslot_con_mas_examenes;
+        orden_timeslots[i]=timeslot_con_mas_examenes;
+        timeslots_ord[i]=T;
+        timeslots_array[timeslot_con_mas_examenes].len_examenes_en_timeslot = -10; //con esto lo "elimino". en esta linea dejo inutilizable timeslot_array
+        timeslot_con_mas_examenes = -1;
+        max_cant_examenes_por_timeslot = -1;
+    }
+    //esto es para printear timeslots ordenados
+    /*printf("\n");
+    printf("------------- timeslots ordenados ------------------------\n");
+    for(int i=0; i<cant_timeslots; i++){
+        printf("timeslot: %d\n", timeslots_ord[i].timeslot);
+        printf("cantidad examenes: %d\n", timeslots_ord[i].len_examenes_en_timeslot);
+        printf("\n");
+    }*/
+
+    //aqui empieza el algoritmo HC
+    TIMESLOT* sol;
+    sol = (TIMESLOT*)malloc(sizeof(TIMESLOT));
+    int cant_timeslots_HC = 0;
+    int ee1, exa1;
+    int max_cant_conflictos = -1;
+    int conflictos_ee1;
+    int ex_con_mas_conflictos;
+    int index_e1_conflictos; //index para ir "eliminando" los examenes con mas conflictos en examenes_array_ord
+    int index_ex_con_mas_conflictos;
+    int cant_examenes_reubicados=0;
+    no_agregar_a_timeslot = 0;
+    no_se_anadio_a_ningun_timeslot = 0;
+    while(cant_examenes_reubicados<cant_examenes){
+        for(int i=0; i<cant_timeslots; i++){//for para recorrer timeslots_ord
+            if(timeslots_ord[i].len_examenes_en_timeslot>0){
+                for(int j=0; j<timeslots_ord[i].len_examenes_en_timeslot; j++){//for para ir recorriendo los examenes_en_timeslot
+                    ee1 = timeslots_ord[i].examenes_en_timeslot[j];
+                    for (int k=0; k<cant_examenes; k++){//for para recorrer examenes_array_ord para buscar la cantidad de conflictos del examen
+                        if(examenes_array_ord[k].examen == ee1){
+                            conflictos_ee1 = examenes_array_ord[k].cantidad_conflictos;
+                            break;
+                        }
+                    }
+                    if(conflictos_ee1 > max_cant_conflictos){ //guardo el examen del timeslot con mas conflictos
+                        max_cant_conflictos = conflictos_ee1;
+                        ex_con_mas_conflictos = ee1;
+                        index_ex_con_mas_conflictos = j;
+                    }             
+                }
+                max_cant_conflictos = -1 ; //tengo dudas
+                //aqui tengo que eliminar e1  de examenes_en_timeslot
+                for(int k=index_ex_con_mas_conflictos; k<timeslots_ord[i].len_examenes_en_timeslot; k++){
+                    timeslots_ord[i].examenes_en_timeslot[k]=timeslots_ord[i].examenes_en_timeslot[k+1];
+                }
+                timeslots_ord[i].len_examenes_en_timeslot-=1;
+                //aqui ingreso a la solucion a ex_con_mas_conflictos
+                if (cant_timeslots_HC == 0){ //solucion inicial, creo el primer timeslot
+                    TIMESLOT tt = {0};
+                    tt.timeslot = 0;
+                    tt.examenes_en_timeslot[0]=ex_con_mas_conflictos;
+                    tt.len_examenes_en_timeslot = 1;
+                    sol[cant_timeslots_HC]=tt;
+                    cant_timeslots_HC ++;
+                }
+                else{
+                    for(int q=0; q<cant_timeslots_HC; q++){//for para recorrer los timeslots de la solucion actual
+                        len_examenes_timeslot = sol[q].len_examenes_en_timeslot;
+                        for(int h=0; h<sol[q].len_examenes_en_timeslot; h++){//recorro los examenes actuales
+                            exa1 = sol[q].examenes_en_timeslot[h];
+                            if(matriz_conflictos[ex_con_mas_conflictos][exa1] != 0){
+                                no_agregar_a_timeslot = 1;
+                                //printf("examen %d tiene conflicto con examen %d\n", ex_con_mas_conflictos,exa1);
+                            }
+                        }
+                        if(no_agregar_a_timeslot==0){//esto quiere decir que si pasa, lo puedo agregar al timeslot actual
+                            //printf("examen %d no tiene conflicto con timeslot %d\n", ex_con_mas_conflictos, q);
+                            sol[q].examenes_en_timeslot[len_examenes_timeslot]=ex_con_mas_conflictos;
+                            sol[q].len_examenes_en_timeslot++;
+                            no_se_anadio_a_ningun_timeslot = 1;
+                            no_agregar_a_timeslot=0;
+                            break;
+                        }
+                        no_agregar_a_timeslot=0;
+                    }
+                    if(no_se_anadio_a_ningun_timeslot==0){//si no encontro ningun timeslot para asignar, debe crear un nuevo timeslot
+                        //printf("crear nuevo timeslot para examen %d\n",ex_con_mas_conflictos);
+                        cant_timeslots_HC++;
+                        sol = (TIMESLOT*)realloc(sol, (cant_timeslots_HC)*sizeof(TIMESLOT));
+                        TIMESLOT ts_aux = {0};
+                        ts_aux.timeslot = cant_timeslots_HC-1;
+                        ts_aux.examenes_en_timeslot[0]=ex_con_mas_conflictos;
+                        ts_aux.len_examenes_en_timeslot = 1;
+                        sol[cant_timeslots_HC-1]=ts_aux;
+                    }
+                    no_se_anadio_a_ningun_timeslot = 0;
+                }
+                cant_examenes_reubicados++;
+            }
+        }
+    }
+
+    printf("\n");
+    printf("---------------------- SOLUCION CON HC------------------------\n");
+
+    suma=0; 
+    suma_total = 0;
+    for(int s=0; s<cant_timeslots_HC; s++){
+        printf("timeslot: %d\n", s);
+        for(int o=0; o<sol[s].len_examenes_en_timeslot;o++){
+            int examen = sol[s].examenes_en_timeslot[o];    
+            printf("id examen %d\n", sol[s].examenes_en_timeslot[o]+1);
+            for(int g=0; g<sol[s].len_examenes_en_timeslot;g++){
+                int ex = sol[s].examenes_en_timeslot[g];
+                if(g!=o){
+                    suma += matriz_conflictos[examen][ex];
+                }
+            }
+            suma_total += suma;
+            suma=0;
+            
+        }
+        printf("suma conflictos: %d\n", suma_total);
+        printf("\n");
+        suma_total=0;
+    }
+    printf("cantidad de timeslots HC: %d\n", cant_timeslots_HC);
+    printf("cantidad de timeslots greedy: %d\n", cant_timeslots);
+
+
 
     fclose(exm);
     fclose(stu);

@@ -3,8 +3,8 @@
 #include <sys/stat.h>
 #include <string.h>
 
-const char* estudiantes = "./instances/problema.stu";
-const char* examenes = "./instances/problema.exm";
+const char* estudiantes = "./instances/TorontoE92.stu";
+const char* examenes = "./instances/TorontoE92.exm";
 
 typedef struct {
         char id[20];
@@ -162,6 +162,35 @@ float calcularPenalizacionPromedio(TIMESLOT* sol, int cant_timeslots_HC, STUDENT
         penPorEstudiante = 0;
     }
     return (penPromedio/len_students);
+}
+
+void crearArchivos(TIMESLOT* sol, int cant_timeslots_HC, float penalizacion_promedio, int cant_examenes){
+    FILE *fp1, *fp2, *fp3;
+ 	char pen_string[20], cant_timeslots_HC_string[20];
+ 	fp1 = fopen ( "problema.res", "w");
+    fp2 = fopen ( "problema.pen", "w");
+    fp3 = fopen ( "problema.sol", "w");
+    //escritura de penalizacion y cantidad de ts
+ 	sprintf(cant_timeslots_HC_string, "%d", cant_timeslots_HC);
+    gcvt(penalizacion_promedio, 10, pen_string);
+    fputs(cant_timeslots_HC_string, fp1);
+    fputs(pen_string, fp2);
+
+    //escritura de solucion
+    for(int i=1; i<=cant_examenes; i++){
+        char line[30], ts_string[8];
+        int timeslot_examen = findTimeslot(i, sol, cant_timeslots_HC);
+        sprintf(line, "%d", i);
+        sprintf(ts_string, "%d", timeslot_examen);
+        strcat(line, " " );
+	    strcat(line, ts_string);
+        strcat(line, "\n");
+        fputs(line, fp3);
+    }
+ 	
+ 	fclose(fp1);
+    fclose(fp2);
+    fclose(fp3);
 }
 
 int main(int argc, char ** argv){
@@ -447,6 +476,7 @@ int main(int argc, char ** argv){
     printf("cantidad de timeslots greedy: %d\n", cant_timeslots_greedy);
     printf("penalizacion promedio: %f\n", penalizacion_promedio);
     printf("\n");
+    crearArchivos(sol, cant_timeslots_HC, penalizacion_promedio, cant_examenes);
     fclose(exm);
     fclose(stu);
     return 0;

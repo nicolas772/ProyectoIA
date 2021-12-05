@@ -2,7 +2,7 @@
 
 Para ejecutar el algoritmo:
 
-1) Clone el repositorio
+1) Clone el repositorio https://github.com/nicolas772/ProyectoIA.git
 2) Ubique el repositorio en la terminal
 3) ejecute el siguiente comando:  make run i=instancia , donde instancia es el set de datos a utilizar. Si por ejemplo, se quiere utilizar el set de datos Carleton91, el comando sería -> make run i=Carleton91
 4) El programa creara 3 archivos:

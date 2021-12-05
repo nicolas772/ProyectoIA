@@ -21,7 +21,7 @@ typedef struct {
 } TIMESLOT;
 
 TIMESLOT* ordenar_timeslots(int cant_timeslots, TIMESLOT* ts_desordenado){
-    //ordena ts_desordenado por timeslots, desde el timeslot con mas examenes al que menos tiene
+    //ordena ts_desordenado por timeslots, desde el timeslot con mas examenes al que menos tiene hola
     TIMESLOT* timeslots_ord; //arreglo descendente por cantidad de examenes en timeslot
     int orden_timeslots[cant_timeslots]; //guarda el timeslot correspondiente al orden, [2,3,1] quiere decir ts2>ts3>ts1
     timeslots_ord = (TIMESLOT*)malloc(cant_timeslots*sizeof(TIMESLOT));

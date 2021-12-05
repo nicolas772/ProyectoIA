@@ -3,9 +3,6 @@
 #include <sys/stat.h>
 #include <string.h>
 
-const char* estudiantes = "./instances/TorontoE92.stu";
-const char* examenes = "./instances/TorontoE92.exm";
-
 typedef struct {
         char id[20];
         int mis_examenes[60];
@@ -141,6 +138,8 @@ int calcularPenalizacion(int* a, int len_a){
             pen+=1;
         }
     }
+    free(a_ordenado);
+    free(copia_a);
     return pen;
 }
 
@@ -161,6 +160,7 @@ float calcularPenalizacionPromedio(TIMESLOT* sol, int cant_timeslots_HC, STUDENT
         penPromedio += penPorEstudiante;
         penPorEstudiante = 0;
     }
+    free(ts_examenes);
     return (penPromedio/len_students);
 }
 
@@ -194,7 +194,16 @@ void crearArchivos(TIMESLOT* sol, int cant_timeslots_HC, float penalizacion_prom
 }
 
 int main(int argc, char ** argv){
-
+    if (argc==1){
+       printf("Debes ingresar el nombre de la instancia por parametro...\n");
+       return 1;
+    }
+    char estudiantes[40] = "./instances/";
+    char examenes[40] = "./instances/";
+    strcat(estudiantes, argv[1]);
+    strcat(estudiantes, ".stu");
+    strcat(examenes, argv[1]);
+    strcat(examenes, ".exm");
     FILE *exm, *stu;
     exm = fopen(examenes, "r");
     stu = fopen(estudiantes, "r");
@@ -263,7 +272,6 @@ int main(int argc, char ** argv){
         }
         
     }
-
     //----------------------Armado de matriz de conflictos-----------------------------
     for(int i=0; i<= len_students; i++){
         for(int j=0; j<students[i].len_mis_examenes; j++){
@@ -292,7 +300,7 @@ int main(int argc, char ** argv){
         cant_conflictos = 0;
     }
 
-    //ordenar arreglo de examenes y sus conflictos
+    //ordenar arreglo de examenes por cantidad de conflictos (de mayor a menor)
     EXAMEN* examenes_array_ord; 
     examenes_array_ord = (EXAMEN*)malloc(cant_examenes*sizeof(EXAMEN)); 
     int max_conflictos = -1;
@@ -351,10 +359,10 @@ int main(int argc, char ** argv){
         }
         no_se_anadio_a_ningun_timeslot = 0;     
     }
-    printSolucion(timeslots_array, cant_timeslots, 2);
+    //printSolucion(timeslots_array, cant_timeslots, 2);
     int cant_timeslots_greedy = cant_timeslots;
-    printf("cantidad de timeslots greedy: %d\n", cant_timeslots_greedy);
-    printf("\n");
+    //printf("cantidad de timeslots greedy: %d\n", cant_timeslots_greedy);
+    //printf("\n");
 
     //----------------------- Hill Climbing----------------------------------------
 
@@ -452,15 +460,15 @@ int main(int argc, char ** argv){
                 }
             }
         }
-        printSolucion(sol, cant_timeslots_HC, 0);
+        //printSolucion(sol, cant_timeslots_HC, 0);
         if(cant_timeslots_HC >= cant_timeslots){
-            printf("No se mejoro solucion\n");
+            //printf("No se mejoro solucion\n");
             sol = respaldo_sol;
             cant_timeslots_HC = respaldo_cant_timeslots_HC; 
             se_mejoro_solucion=1;
         }
         else{
-            printf("Si se mejoro solucion\n");
+            //printf("Si se mejoro solucion\n");
             respaldo_sol = doRespaldo(sol,cant_timeslots_HC);
             respaldo_cant_timeslots_HC = cant_timeslots_HC;
             timeslots_ord = ordenar_timeslots(cant_timeslots_HC, sol);
@@ -469,7 +477,7 @@ int main(int argc, char ** argv){
         }
     }
     len_students++;
-    printSolucion(sol, cant_timeslots_HC, 1);
+    //printSolucion(sol, cant_timeslots_HC, 1);
     float penalizacion_promedio = calcularPenalizacionPromedio(sol, cant_timeslots_HC, students, len_students);
     printf("\n");
     printf("cantidad Final de timeslots HC: %d\n", cant_timeslots_HC);
@@ -477,6 +485,17 @@ int main(int argc, char ** argv){
     printf("penalizacion promedio: %f\n", penalizacion_promedio);
     printf("\n");
     crearArchivos(sol, cant_timeslots_HC, penalizacion_promedio, cant_examenes);
+    //Aqui se cierran los archivos y se libera la memoria
+    free(file_contents);
+    free(aux);
+    free(id_estudiante);
+    free(id_examen);
+    free(students);
+    free(examenes_array);
+    free(examenes_array_ord);
+    free(timeslots_array);
+    free(sol);
+    free(timeslots_ord);
     fclose(exm);
     fclose(stu);
     return 0;

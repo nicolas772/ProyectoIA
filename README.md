@@ -10,4 +10,4 @@ Para ejecutar el algoritmo:
 - problema.res : contiene la cantidad de timeslots generada por el algoritmo para dicha instancia
 - problema.pen : contiene la penalización promedio de la planificación generada por el programa.
 
-nota: Para que funcione el comando, los archivos .exm y .stu instancias deben estar dentro de la carpeta "instances" presente en el repositorio.
+nota: Para que funcione el comando, los archivos .exm y .stu de la instancia deben estar dentro de la carpeta "instances" presente en el repositorio.
